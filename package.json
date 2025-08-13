@@ -1,0 +1,51 @@
+{
+  "name": "al-shafi-platform",
+  "version": "1.0.0",
+  "description": "Al-Shafi Medical Platform - Complete Frontend + Backend Solution",
+  "private": true,
+  "workspaces": [
+    "myapp",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:myapp\"",
+    "dev:myapp": "cd myapp && npx expo start",
+    "dev:backend": "cd backend && npm run dev",
+    "install:all": "npm install && npm run install:myapp && npm run install:backend",
+    "install:myapp": "cd myapp && npm install",
+    "install:backend": "cd backend && npm install",
+    "build": "npm run build:backend && npm run build:myapp",
+    "build:myapp": "cd myapp && npx expo export",
+    "build:backend": "cd backend && npm run build",
+    "start": "npm run start:backend",
+    "start:backend": "cd backend && npm start",
+    "test": "npm run test:myapp && npm run test:backend",
+    "test:myapp": "cd myapp && npm test",
+    "test:backend": "cd backend && npm test",
+    "clean": "npm run clean:myapp && npm run clean:backend",
+    "clean:myapp": "cd myapp && rm -rf node_modules .expo dist web-build",
+    "clean:backend": "cd backend && rm -rf node_modules dist build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "medical",
+    "ecommerce",
+    "react-native",
+    "nodejs",
+    "typescript",
+    "expo",
+    "express"
+  ],
+  "author": "Al-Shafi Medical Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ahmedelshkhwy/application-8-2025.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Ahmedelshkhwy/application-8-2025/issues"
+  },
+  "homepage": "https://github.com/Ahmedelshkhwy/application-8-2025#readme"
+}
