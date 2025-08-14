@@ -54,8 +54,16 @@ export default function OffersScreen() {
 
       console.log('🔍 جلب العروض من الخادم...');
       
-      // محاولة جلب العروض من endpoint الخصومات مباشرة
-      const API_BASE = process.env.EXPO_PUBLIC_API_ADMIN_URL || 'http://192.168.8.87:5000/api/admin';
+      // Get API base URL from environment variable
+      const getAPIBaseURL = (): string => {
+        const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+        if (apiUrl) {
+          return `${apiUrl}/admin`;
+        }
+        return 'http://localhost:5000/api/admin'; // fallback
+      };
+      
+      const API_BASE = getAPIBaseURL();
       
       // محاولة جلب العروض من الباك إند مع timeout ومعالجة أفضل للأخطاء
       const controller = new AbortController();

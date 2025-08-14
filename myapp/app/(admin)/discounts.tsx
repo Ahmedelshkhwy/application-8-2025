@@ -26,8 +26,17 @@ import { Discount, Product } from '../../src/types/modules';
 const PRIMARY = '#23B6C7';
 const PINK = '#E94B7B';
 const BG = '#E6F3F7';
-// استخدام متغيرات البيئة للـ API
-const API_BASE = process.env.EXPO_PUBLIC_API_ADMIN_URL || 'http://192.168.8.87:5000/api/admin';
+
+// Get API base URL from environment variable
+const getAPIBaseURL = (): string => {
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (apiUrl) {
+    return `${apiUrl}/admin`;
+  }
+  return 'http://localhost:5000/api/admin'; // fallback
+};
+
+const API_BASE = getAPIBaseURL();
 
 export default function AdminDiscountsScreen() {
   const { user, token } = useAuth();
@@ -83,7 +92,7 @@ export default function AdminDiscountsScreen() {
 
     setIsSearching(true);
     try {
-      const API_PRODUCTS = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.8.87:5000/api';
+      const API_PRODUCTS = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
       const response = await fetch(`${API_PRODUCTS}/products?search=${encodeURIComponent(query)}&isActive=true&limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -158,7 +167,7 @@ export default function AdminDiscountsScreen() {
       });
 
       // تحميل جميع المنتجات النشطة - استخدام مسار المنتجات الصحيح
-      const API_PRODUCTS = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.8.87:5000/api';
+      const API_PRODUCTS = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
       const productsResponse = await fetch(`${API_PRODUCTS}/products?isActive=true&limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`,

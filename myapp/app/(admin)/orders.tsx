@@ -20,9 +20,16 @@ import { OrderDetailsModal } from '../../src/components/OrderDetailsModal';
 import { StatusChangeModal } from '../../src/components/StatusChangeModal';
 import { Colors, Spacing, FontSizes, GlobalStyles } from '../../src/styles/globalStyles';
 
+// Get API base URL from environment variable
+const getAPIBaseURL = (): string => {
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (apiUrl) {
+    return `${apiUrl}/admin`;
+  }
+  return 'http://localhost:5000/api/admin'; // fallback
+};
 
-// استخدام نفس API المنتجات مؤقتاً
-const API_BASE = 'http://192.168.8.87:5000/api/admin';
+const API_BASE = getAPIBaseURL();
 
 interface OrderItem {
   _id: string;
