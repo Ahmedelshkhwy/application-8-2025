@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import LoadingComponent from '../../src/components/LoadingComponent';
 import ErrorComponent from '../../src/components/ErrorComponent';
 import EmptyState from '../../src/components/EmptyState';
+import { CATEGORIES_DATA, getCategoryName } from '../../src/data/categories';
 
 // استيراد آمن لـ expo-image-picker
 let ImagePicker: any = null;
@@ -63,7 +64,7 @@ export default function AdminProductsScreen() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +72,27 @@ export default function AdminProductsScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // للتحقق من الفئات الجديدة
+  console.log('🔥 CATEGORIES_DATA:', CATEGORIES_DATA.length, CATEGORIES_DATA.map(c => c.name));
+
+  // دمج الفئات الجديدة مع الفئات القديمة من قاعدة البيانات مع تجنب التكرار
+  const allCategories = [
+    // الفئات الجديدة أولاً
+    ...CATEGORIES_DATA.map(cat => ({
+      _id: cat.id,
+      name: cat.name,
+      description: cat.description,
+      image: cat.image
+    })),
+    // الفئات القديمة من قاعدة البيانات (تجنب التكرار)
+    ...dbCategories.filter(dbCat => 
+      !CATEGORIES_DATA.some(newCat => newCat.id === dbCat._id)
+    )
+  ];
+
+  // للتحقق من الفئات المدمجة
+  console.log('📂 All Categories:', allCategories.length, allCategories.map(c => c.name));
 
   // حالة النموذج
   const [formData, setFormData] = useState({
@@ -128,12 +150,12 @@ export default function AdminProductsScreen() {
         console.log('Categories loaded:', safeCategoriesData.length);
         
         setProducts(safeProductsData);
-        setCategories(safeCategoriesData);
+        setDbCategories(safeCategoriesData);
       } else {
         console.error('فشل في تحميل البيانات:', productsResponse.status, categoriesResponse.status);
         Alert.alert('خطأ', 'فشل في تحميل البيانات من الخادم');
         setProducts([]);
-        setCategories([]);
+        setDbCategories([]);
       }
     } catch (error) {
       console.error('خطأ في تحميل البيانات:', error);
@@ -176,6 +198,7 @@ export default function AdminProductsScreen() {
   };
 
   const handleAddProduct = () => {
+    console.log('🎯 Opening Add Product Modal. Available categories:', allCategories.length);
     setEditingProduct(null);
     setFormData({
       name: '',
@@ -473,7 +496,9 @@ export default function AdminProductsScreen() {
         </Text>
         <Text style={styles.productPrice}>{item.price.toFixed(2)} ريال</Text>
         <Text style={styles.productStock}>المخزون: {item.stock}</Text>
-        <Text style={styles.productCategory}>الفئة: {item.category}</Text>
+        <Text style={styles.productCategory}>
+          الفئة: {getCategoryName(item.category) || item.category}
+        </Text>
       </View>
       <View style={styles.productActions}>
         <TouchableOpacity 
@@ -576,7 +601,7 @@ export default function AdminProductsScreen() {
       {/* فئات المنتجات */}
       <View style={styles.categoriesContainer}>
         <FlatList
-          data={[{ _id: 'all', name: 'جميع المنتجات', description: '' }, ...categories]}
+          data={[{ _id: 'all', name: 'جميع المنتجات', description: '' }, ...allCategories]}
           renderItem={renderCategory}
           keyExtractor={(item) => item._id}
           horizontal
@@ -711,7 +736,7 @@ export default function AdminProductsScreen() {
             <View style={styles.categorySelector}>
               <Text style={styles.categoryLabel}>الفئة:</Text>
               <FlatList
-                data={categories}
+                data={allCategories}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 renderItem={({ item }) => (
