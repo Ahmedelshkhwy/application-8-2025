@@ -41,7 +41,9 @@ export interface Product {
   price: number;
   image: string;
   category: string;
+  brand?: string; 
   stock: number;
+  isFeatured?: boolean; 
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -264,6 +266,8 @@ export interface ProductInput {
   description?: string;
   price: number;
   image?: string;
+  brand?: string;
+  isFeatured?: boolean;
   category: string;
   stock?: number;
   isActive?: boolean;

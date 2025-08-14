@@ -108,7 +108,7 @@ export const getAllProducts = async (filters?: {
   isFeatured?: boolean;
   brand?: string;
   limit?: number 
-}) => {
+  }) => {
   try {
     let url = '/products';
     const queryParams = new URLSearchParams();
@@ -122,7 +122,7 @@ export const getAllProducts = async (filters?: {
     if (filters?.isActive !== undefined) {
       queryParams.append('isActive', filters.isActive.toString());
     }
-    if (filters?.isFeatured !== undefined) {
+    if (filters?.isFeatured ) {
       queryParams.append('isFeatured', filters.isFeatured.toString());
     }
     if (filters?.brand) {
@@ -144,7 +144,7 @@ export const getAllProducts = async (filters?: {
 };
 
 // جلب المنتجات المميزة للصفحة الرئيسية
-export const getFeaturedProducts = async (limit: number = 8) => {
+export const getFeaturedProducts = async (limit: number = 24) => {
   try {
     return await getAllProducts({ 
       isActive: true, 

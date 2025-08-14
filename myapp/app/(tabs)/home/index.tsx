@@ -19,8 +19,7 @@ import * as Location from 'expo-location';
 import { useCart } from '../../../src/contexts/cartcontext';
 import { useAuth } from '../../../src/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { getAllProducts } from '../../../src/api/api';
-import { searchProducts } from '../../../src/services/product.service';
+import { getAllProducts, getFeaturedProducts } from '../../../src/api/api';import { searchProducts } from '../../../src/services/product.service';
 import { CategoriesSection } from '../../../src/components/CategoriesSection';
 const PRIMARY = '#23B6C7'; // الأزرق الفاتح من الشعار
 const PINK = '#E94B7B';    // الوردي من الشعار
@@ -108,15 +107,22 @@ export default function HomeScreen() {
     
     try {
       // استدعاء API - سنحتاج تحديث API لدعم pagination
-      const data = await getAllProducts();
-      setProducts(data|| []);
-    } catch (err) {
-      console.error('خطأ في تحميل المنتجات:', err);
-      setError('فشل في تحميل المنتجات');
-    } finally {
-      setIsLoading(false);
+      let data;
+    if (!search.trim()) {
+      // جلب المنتجات المميزة فقط للصفحة الرئيسية
+      data = await getFeaturedProducts(24);
+    } else {
+      // جلب المنتجات حسب البحث
+      data = await getAllProducts({ search });
     }
-  };
+    setProducts(data || []);
+  } catch (err) {
+    console.error('خطأ في تحميل المنتجات:', err);
+    setError('فشل في تحميل المنتجات');
+  } finally {
+    setIsLoading(false);
+  }
+};
   
   // فلترة المنتجات محلياً بناءً على البحث (سريع جداً)
   const filteredProducts = useMemo(() => {
