@@ -45,15 +45,17 @@ type Product = {
   image: string;
   category: string;
   stock: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 type Category = {
   _id: string;
   name: string;
   description: string;
+  image?: string;
+  products?: Product[];
 };
 
 export default function AdminProductsScreen() {

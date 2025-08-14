@@ -101,9 +101,29 @@ export const resetPassword = async (data: ResetPasswordRequest) => {
 // ==================== PRODUCTS API ====================
 
 // جلب جميع المنتجات
-export const getAllProducts = async () => {
+export const getAllProducts = async (filters?: { category?: string; search?: string; isActive?: boolean; limit?: number }) => {
   try {
-    const response = await apiClient.get('/products');
+    let url = '/products';
+    const queryParams = new URLSearchParams();
+
+    if (filters?.category) {
+      queryParams.append('category', filters.category);
+    }
+    if (filters?.search) {
+      queryParams.append('search', filters.search);
+    }
+    if (filters?.isActive !== undefined) {
+      queryParams.append('isActive', filters.isActive.toString());
+    }
+    if (filters?.limit) {
+      queryParams.append('limit', filters.limit.toString());
+    }
+
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+
+    const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
     throw ErrorHandler.handleApiError(error, 'جلب جميع المنتجات');

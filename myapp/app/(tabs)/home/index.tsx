@@ -21,6 +21,7 @@ import { useAuth } from '../../../src/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { getAllProducts } from '../../../src/api/api';
 import { searchProducts } from '../../../src/services/product.service';
+import { CategoriesSection } from '../../../src/components/CategoriesSection';
 const PRIMARY = '#23B6C7'; // الأزرق الفاتح من الشعار
 const PINK = '#E94B7B';    // الوردي من الشعار
 const BG = '#E6F3F7';      // خلفية فاتحة
@@ -348,6 +349,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* قسم الفئات */}
+      {search.length === 0 && <CategoriesSection />}
 
       {/* نتائج البحث */}
       {search.length > 0 && (
