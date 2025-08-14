@@ -1,25 +1,22 @@
-import { getAPIBase, updateAPIBase } from './api';
+import { API_BASE, checkAPIHealth } from './api';
 
 // API configuration object
 export const apiConfig = {
-  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.8.87:5000/api',
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:5000/api',
   
-  // Function to update base URL
-  updateBaseURL: async () => {
+  // Function to check API health
+  checkHealth: async () => {
     try {
-      const newBaseURL = await updateAPIBase();
-      apiConfig.baseURL = newBaseURL;
-      console.log('🌐 Updated API Base URL in config:', apiConfig.baseURL);
-      return newBaseURL;
+      return await checkAPIHealth();
     } catch (error) {
-      console.log('⚠️ Could not update API base URL in config');
-      return apiConfig.baseURL;
+      console.log('⚠️ Could not check API health');
+      return false;
     }
   },
 
   // Initialize the config
   initialize: async () => {
-    await apiConfig.updateBaseURL();
+    await apiConfig.checkHealth();
   }
 };
 
@@ -28,6 +25,5 @@ apiConfig.initialize().catch(console.error);
 
 // Helper function to get full API URL
 export const getAPIUrl = (endpoint: string): string => {
-  const API_BASE = getAPIBase();
   return `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 };

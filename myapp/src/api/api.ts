@@ -15,6 +15,16 @@ import {
     UserRegistrationData
 } from '../types/modules';
 
+// Helper function to get base URL for images from environment
+const getImageBaseURL = (): string => {
+  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (apiUrl) {
+    // Remove '/api' from the end if it exists to get the server base URL
+    return apiUrl.replace('/api', '');
+  }
+  return 'http://localhost:5000'; // fallback
+};
+
 // ==================== AUTHENTICATION API ====================
 
 // تسجيل مستخدم جديد
@@ -327,9 +337,9 @@ export const getOffers = async (token: string) => {
           // إصلاح مسار الصورة
           if (!offer.image.startsWith('http') && !offer.image.startsWith('https')) {
             if (offer.image.startsWith('/')) {
-              offer.image = `http://192.168.8.87:5000${offer.image}`;
+              offer.image = `${getImageBaseURL()}${offer.image}`;
             } else {
-              offer.image = `http://192.168.8.87:5000/uploads/${offer.image}`;
+              offer.image = `${getImageBaseURL()}/uploads/${offer.image}`;
             }
           }
         }
@@ -338,9 +348,9 @@ export const getOffers = async (token: string) => {
         if (offer.product && offer.product.image && typeof offer.product.image === 'string') {
           if (!offer.product.image.startsWith('http') && !offer.product.image.startsWith('https')) {
             if (offer.product.image.startsWith('/')) {
-              offer.product.image = `http://192.168.8.87:5000${offer.product.image}`;
+              offer.product.image = `${getImageBaseURL()}${offer.product.image}`;
             } else {
-              offer.product.image = `http://192.168.8.87:5000/uploads/${offer.product.image}`;
+              offer.product.image = `${getImageBaseURL()}/uploads/${offer.product.image}`;
             }
           }
         }
