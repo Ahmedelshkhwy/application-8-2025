@@ -5,12 +5,12 @@ export interface IProduct extends Document {
   name: string;
   description?: string;
   price: number;
-  category: mongoose.Schema.Types.ObjectId;
+  category: string; // تغيير من ObjectId إلى string
   image?: string;
   stock: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -18,10 +18,10 @@ const ProductSchema: Schema = new Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String },
     price: { type: Number, required: true },
-    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+    category: { type: String, required: true }, // تغيير من ObjectId إلى String
     image: { type: String },
     stock: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true }, // إضافة حقل isActive
+    isActive: { type: Boolean, default: true },
   },
   {
     timestamps: true,

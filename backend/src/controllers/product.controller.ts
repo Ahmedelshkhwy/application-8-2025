@@ -1,12 +1,47 @@
 import { Request, Response } from 'express';
 import Product from '../models/product.model';
 
-export const getAllProducts = async (_req: Request, res: Response) => {
+export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await Product.find();
+    const { category, search, isActive, limit } = req.query;
+    let filter: any = {};
+
+    // فلترة حسب الفئة
+    if (category) {
+      filter.category = category;
+    }
+
+    // فلترة حسب البحث
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // فلترة حسب الحالة النشطة
+    if (isActive === 'true') {
+      filter.isActive = true;
+    }
+
+    console.log('🔍 Product Filter:', filter); // للتحقق من الفلتر
+
+    let query = Product.find(filter);
+
+    // تحديد عدد النتائج
+    if (limit) {
+      query = query.limit(parseInt(limit as string));
+    }
+
+    const products = await query;
+    console.log('✅ Products found:', products.length); // للتحقق من النتائج
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'حدث خطأ أثناء جلب المنتجات' });
+    console.error('❌ Error in getAllProducts:', error); // تفاصيل الخطأ
+    res.status(500).json({ 
+      message: 'حدث خطأ أثناء جلب المنتجات',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
