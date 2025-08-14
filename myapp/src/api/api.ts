@@ -1,4 +1,5 @@
 import apiClient from '../config/axios';
+import { ErrorHandler } from '../services/ErrorHandler';
 import {
     AddToCartRequest,
     ApplyDiscountRequest,
@@ -29,44 +30,72 @@ const getImageBaseURL = (): string => {
 
 // تسجيل مستخدم جديد
 export const registerUser = async (data: UserRegistrationData) => {
-  const response = await apiClient.post('/auth/register', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/auth/register', data);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'تسجيل مستخدم جديد');
+  }
 };
 
 // تسجيل الدخول
 export const loginUser = async (data: LoginData) => {
-  const response = await apiClient.post('/auth/login', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/auth/login', data);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'تسجيل الدخول');
+  }
 };
 
 // إرسال OTP للتسجيل
 export const sendOTPForRegister = async (data: OTPSendRequest) => {
-  const response = await apiClient.post('/otp/send/register', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/otp/send/register', data);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'إرسال OTP للتسجيل');
+  }
 };
 
 // إرسال OTP لاستعادة كلمة المرور
 export const sendOTPForResetPassword = async (email: string) => {
-  const response = await apiClient.post('/otp/send/reset-password', { email });
-  return response.data;
+  try {
+    const response = await apiClient.post('/otp/send/reset-password', { email });
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'إرسال OTP لاستعادة كلمة المرور');
+  }
 };
 
 // التحقق من OTP
 export const verifyOTP = async (data: OTPVerificationRequest) => {
-  const response = await apiClient.post('/otp/verify', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/otp/verify', data);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'التحقق من OTP');
+  }
 };
 
 // إعادة إرسال OTP
 export const resendOTP = async (otpId: string) => {
-  const response = await apiClient.post('/otp/resend', { otpId });
-  return response.data;
+  try {
+    const response = await apiClient.post('/otp/resend', { otpId });
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'إعادة إرسال OTP');
+  }
 };
 
 // إعادة تعيين كلمة المرور
 export const resetPassword = async (data: ResetPasswordRequest) => {
-  const response = await apiClient.post('/auth/reset-password', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/auth/reset-password', data);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'إعادة تعيين كلمة المرور');
+  }
 };
 
 // ==================== PRODUCTS API ====================
@@ -77,23 +106,30 @@ export const getAllProducts = async () => {
     const response = await apiClient.get('/products');
     return response.data;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
+    throw ErrorHandler.handleApiError(error, 'جلب جميع المنتجات');
   }
 };
 
 // جلب منتج واحد
 export const getProductById = async (productId: string) => {
-  const response = await apiClient.get(`/products/${productId}`);
-  return response.data;
+  try {
+    const response = await apiClient.get(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'جلب تفاصيل المنتج');
+  }
 };
 
 // إضافة منتج جديد (للمدراء فقط)
 export const createProduct = async (data: ProductInput, token: string) => {
-  const response = await apiClient.post('/products', data, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
+  try {
+    const response = await apiClient.post('/products', data, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'إضافة منتج جديد');
+  }
 };
 
 // ==================== CATEGORIES API ====================

@@ -8,6 +8,7 @@ import {
   sendOTPForResetPassword,
   verifyOTP as verifyOTPApi
 } from '../api/api';
+import { ErrorHandler } from '../services/ErrorHandler';
 import { AuthContextType, OTPVerificationRequest, User, UserRegistrationData } from '../types/modules';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,7 +44,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
-      console.error('Error loading stored auth:', error);
+      ErrorHandler.handle(error, {
+        showAlert: false,
+        logError: true
+      });
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +60,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(newToken);
       setUser(newUser);
     } catch (error) {
-      console.error('Error saving auth data:', error);
+      ErrorHandler.handle(error, {
+        title: 'خطأ في حفظ البيانات',
+        showAlert: true
+      });
     }
   };
 
@@ -67,7 +74,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(null);
       setUser(null);
     } catch (error) {
-      console.error('Error clearing auth data:', error);
+      ErrorHandler.handle(error, {
+        showAlert: false,
+        logError: true
+      });
     }
   };
 
@@ -82,8 +92,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Invalid response from server');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      throw new Error(error.response?.data?.message || 'فشل في تسجيل الدخول');
+      const appError = ErrorHandler.handleAuthError(error);
+      throw appError;
     } finally {
       setIsLoading(false);
     }
@@ -101,8 +111,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('Invalid response from server');
       }
     } catch (error: any) {
-      console.error('Register error:', error);
-      throw new Error(error.response?.data?.message || 'فشل في التسجيل');
+      const appError = ErrorHandler.handleApiError(error, 'تسجيل حساب جديد');
+      throw appError;
     } finally {
       setIsLoading(false);
     }

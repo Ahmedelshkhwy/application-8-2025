@@ -34,17 +34,7 @@ try {
 const PRIMARY = '#23B6C7';
 const PINK = '#E94B7B';
 const BG = '#E6F3F7';
-
-// Get API base URL from environment variable
-const getAPIBaseURL = (): string => {
-  const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-  if (apiUrl) {
-    return `${apiUrl}/admin`;
-  }
-  return 'http://localhost:5000/api/admin'; // fallback
-};
-
-const API_BASE = getAPIBaseURL();
+const API_BASE = 'http://192.168.8.87:5000/api/admin';
 
 // نوع المنتج من الباك إند
 type Product = {
