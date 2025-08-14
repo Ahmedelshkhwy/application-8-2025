@@ -3,7 +3,7 @@ import Product from '../models/product.model';
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const { category, search, isActive, limit } = req.query;
+    const { category, search, isActive, isFeatured, brand, limit } = req.query;
     let filter: any = {};
 
     // فلترة حسب الفئة
@@ -11,17 +11,28 @@ export const getAllProducts = async (req: Request, res: Response) => {
       filter.category = category;
     }
 
+    // فلترة حسب العلامة التجارية
+    if (brand) {
+      filter.brand = { $regex: brand, $options: 'i' };
+    }
+
     // فلترة حسب البحث
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { description: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } } // إضافة البحث في العلامة التجارية
       ];
     }
 
     // فلترة حسب الحالة النشطة
     if (isActive === 'true') {
       filter.isActive = true;
+    }
+
+    // فلترة المنتجات المميزة
+    if (isFeatured === 'true') {
+      filter.isFeatured = true;
     }
 
     console.log('🔍 Product Filter:', filter); // للتحقق من الفلتر

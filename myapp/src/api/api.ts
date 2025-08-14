@@ -101,7 +101,14 @@ export const resetPassword = async (data: ResetPasswordRequest) => {
 // ==================== PRODUCTS API ====================
 
 // جلب جميع المنتجات
-export const getAllProducts = async (filters?: { category?: string; search?: string; isActive?: boolean; limit?: number }) => {
+export const getAllProducts = async (filters?: { 
+  category?: string; 
+  search?: string; 
+  isActive?: boolean; 
+  isFeatured?: boolean;
+  brand?: string;
+  limit?: number 
+}) => {
   try {
     let url = '/products';
     const queryParams = new URLSearchParams();
@@ -115,6 +122,12 @@ export const getAllProducts = async (filters?: { category?: string; search?: str
     if (filters?.isActive !== undefined) {
       queryParams.append('isActive', filters.isActive.toString());
     }
+    if (filters?.isFeatured !== undefined) {
+      queryParams.append('isFeatured', filters.isFeatured.toString());
+    }
+    if (filters?.brand) {
+      queryParams.append('brand', filters.brand);
+    }
     if (filters?.limit) {
       queryParams.append('limit', filters.limit.toString());
     }
@@ -127,6 +140,19 @@ export const getAllProducts = async (filters?: { category?: string; search?: str
     return response.data;
   } catch (error) {
     throw ErrorHandler.handleApiError(error, 'جلب جميع المنتجات');
+  }
+};
+
+// جلب المنتجات المميزة للصفحة الرئيسية
+export const getFeaturedProducts = async (limit: number = 8) => {
+  try {
+    return await getAllProducts({ 
+      isActive: true, 
+      isFeatured: true, 
+      limit 
+    });
+  } catch (error) {
+    throw ErrorHandler.handleApiError(error, 'جلب المنتجات المميزة');
   }
 };
 

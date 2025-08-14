@@ -45,8 +45,10 @@ type Product = {
   price: number;
   image: string;
   category: string;
+  brand?: string; // إضافة العلامة التجارية
   stock: number;
   isActive?: boolean;
+  isFeatured?: boolean; // إضافة المنتجات المميزة
   createdAt?: string;
   updatedAt?: string;
 };
@@ -100,8 +102,10 @@ export default function AdminProductsScreen() {
     description: '',
     price: '',
     category: '',
+    brand: '', // إضافة العلامة التجارية
     stock: '',
     image: '',
+    isFeatured: false, // إضافة المنتجات المميزة
   });
 
   useEffect(() => {
@@ -205,8 +209,10 @@ export default function AdminProductsScreen() {
       description: '',
       price: '',
       category: '',
+      brand: '',
       stock: '',
       image: '',
+      isFeatured: false,
     });
     setShowAddModal(true);
   };
@@ -218,8 +224,10 @@ export default function AdminProductsScreen() {
       description: product.description,
       price: product.price.toString(),
       category: product.category,
+      brand: product.brand || '',
       stock: product.stock.toString(),
       image: product.image,
+      isFeatured: product.isFeatured || false,
     });
     setShowAddModal(true);
   };
@@ -423,9 +431,11 @@ export default function AdminProductsScreen() {
         description: formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
+        brand: formData.brand.trim() || undefined, // إضافة العلامة التجارية
         stock: parseInt(formData.stock),
         image: imageUrl,
-        isActive: true
+        isActive: true,
+        isFeatured: formData.isFeatured // إضافة المنتجات المميزة
       };
 
       console.log('Saving product...');
@@ -460,8 +470,10 @@ export default function AdminProductsScreen() {
           description: '',
           price: '',
           category: '',
+          brand: '',
           stock: '',
           image: '',
+          isFeatured: false,
         });
         await loadData();
       } else {
@@ -490,11 +502,21 @@ export default function AdminProductsScreen() {
 
       />
       <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+          <Text style={styles.productName}>{item.name}</Text>
+          {item.isFeatured && (
+            <View style={{ backgroundColor: '#FFD700', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 8 }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#333' }}>مميز</Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.productDescription} numberOfLines={2}>
           {item.description}
         </Text>
         <Text style={styles.productPrice}>{item.price.toFixed(2)} ريال</Text>
+        {item.brand && (
+          <Text style={styles.productStock}>العلامة التجارية: {item.brand}</Text>
+        )}
         <Text style={styles.productStock}>المخزون: {item.stock}</Text>
         <Text style={styles.productCategory}>
           الفئة: {getCategoryName(item.category) || item.category}
@@ -655,7 +677,11 @@ export default function AdminProductsScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.formContainer}>
+          <ScrollView 
+            style={styles.formContainer}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
+          >
             <TextInput
               style={styles.formInput}
               placeholder="اسم المنتج"
@@ -678,6 +704,13 @@ export default function AdminProductsScreen() {
               value={formData.price}
               onChangeText={(text) => setFormData({ ...formData, price: text })}
               keyboardType="numeric"
+            />
+            
+            <TextInput
+              style={styles.formInput}
+              placeholder="العلامة التجارية (اختياري)"
+              value={formData.brand}
+              onChangeText={(text) => setFormData({ ...formData, brand: text })}
             />
             
             <TextInput
@@ -759,6 +792,22 @@ export default function AdminProductsScreen() {
               />
             </View>
 
+            {/* إعداد المنتج المميز */}
+            <View style={styles.categorySelector}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <Text style={styles.categoryLabel}>منتج مميز</Text>
+                <Switch
+                  value={formData.isFeatured}
+                  onValueChange={(value) => setFormData({ ...formData, isFeatured: value })}
+                  trackColor={{ false: '#767577', true: PRIMARY }}
+                  thumbColor={formData.isFeatured ? '#fff' : '#f4f3f4'}
+                />
+              </View>
+              <Text style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
+                المنتجات المميزة تظهر في الصفحة الرئيسية
+              </Text>
+            </View>
+
             <TouchableOpacity 
               style={styles.saveButton}
               onPress={handleSaveProduct}
@@ -767,7 +816,7 @@ export default function AdminProductsScreen() {
                 {editingProduct ? 'تحديث المنتج' : 'إضافة المنتج'}
               </Text>
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
