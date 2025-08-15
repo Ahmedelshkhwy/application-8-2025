@@ -131,7 +131,13 @@ export const placeOrder = async (req: Request, res: Response) => {
       paymentStatus: paymentMethod === 'cash' ? 'pending' : 'paid',
       shippingAddress: shippingAddress,
       orderStatus: 'processing',
+      orderNumber: generateOrderNumber(), // رقم طلب فريد
     });
+
+    // دالة توليد رقم طلب عشوائي قصير
+    function generateOrderNumber() {
+      return 'ORD-' + Math.floor(100000 + Math.random() * 900000).toString();
+    }
 
     // تحديث المخزون بعد إنشاء الطلب
     for (const item of orderItems) {

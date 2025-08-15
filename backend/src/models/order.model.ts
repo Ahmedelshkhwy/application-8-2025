@@ -63,6 +63,7 @@ const OrderSchema: Schema = new Schema(
     },
     discountCode: { type: String },
     discountAmount: { type: Number, default: 0 },
+    orderNumber: { type: String, unique: true, required: true }, // رقم الطلب الفريد
   },
   {
     timestamps: true,
