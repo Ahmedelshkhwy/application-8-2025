@@ -21,11 +21,15 @@ import { useAuth } from '../../../src/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { getAllProducts, getFeaturedProducts } from '../../../src/api/api';import { searchProducts } from '../../../src/services/product.service';
 import { CategoriesSection } from '../../../src/components/CategoriesSection';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const PRIMARY = '#23B6C7'; // الأزرق الفاتح من الشعار
 const PINK = '#E94B7B';    // الوردي من الشعار
 const BG = '#E6F3F7';      // خلفية فاتحة
 
-
+const CACHE_KEY = 'products_cache';
+const CACHE_TIMESTAMP_KEY = 'products_cache_timestamp';
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // ساعتين
 
 export default function HomeScreen() {
   const [search, setSearch] = useState('');
@@ -104,25 +108,39 @@ export default function HomeScreen() {
   const loadProducts = async () => {
     setIsLoading(true);
     setError(null);
-    
     try {
-      // استدعاء API - سنحتاج تحديث API لدعم pagination
+      // تحقق من الكاش
+      const cachedData = await AsyncStorage.getItem(CACHE_KEY);
+      const cachedTime = await AsyncStorage.getItem(CACHE_TIMESTAMP_KEY);
+      if (cachedData && cachedTime) {
+        const age = Date.now() - parseInt(cachedTime);
+        if (age < CACHE_DURATION) {
+          console.log('✅ Using cached products');
+          setProducts(JSON.parse(cachedData));
+          setIsLoading(false);
+          return;
+        }
+      }
+      // جلب المنتجات من الـ API
       let data;
-    if (!search.trim()) {
-      // جلب المنتجات المميزة فقط للصفحة الرئيسية
-      data = await getFeaturedProducts(24);
-    } else {
-      // جلب المنتجات حسب البحث
-      data = await getAllProducts({ search });
+      if (!search.trim()) {
+        // جلب المنتجات المميزة فقط للصفحة الرئيسية
+        data = await getFeaturedProducts(24);
+      } else {
+        // جلب المنتجات حسب البحث
+        data = await getAllProducts({ search });
+      }
+      setProducts(data || []);
+      // حفظ في الكاش
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      await AsyncStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+    } catch (err) {
+      console.error('خطأ في تحميل المنتجات:', err);
+      setError('فشل في تحميل المنتجات');
+    } finally {
+      setIsLoading(false);
     }
-    setProducts(data || []);
-  } catch (err) {
-    console.error('خطأ في تحميل المنتجات:', err);
-    setError('فشل في تحميل المنتجات');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
   
   // فلترة المنتجات محلياً بناءً على البحث (سريع جداً)
   const filteredProducts = useMemo(() => {

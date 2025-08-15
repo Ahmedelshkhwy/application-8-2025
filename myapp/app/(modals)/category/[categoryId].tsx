@@ -25,10 +25,15 @@ import { getAllProducts } from '../../../src/api/api';
 import { getCategoryData, getCategoryName, getCategoryColor } from '../../../src/data/categories';
 import { Product } from '../../../src/types/modules';
 import { ErrorComponent } from '../../../src/components/ErrorComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PRIMARY = '#23B6C7';
 const PINK = '#E94B7B';
 const BG = '#E6F3F7';
+
+const CATEGORY_CACHE_DURATION = 2 * 60 * 60 * 1000; // ساعتين
+const getCategoryCacheKey = (categoryId: string) => `products_cache_${categoryId}`;
+const getCategoryTimestampKey = (categoryId: string) => `products_cache_timestamp_${categoryId}`;
 
 export default function CategoryScreen() {
   const { categoryId } = useLocalSearchParams();
@@ -60,27 +65,43 @@ export default function CategoryScreen() {
   }, [products, searchQuery]);
 
   useEffect(() => {
-    loadCategoryProducts();
-  }, [categoryId]);
+    loadCategoryProducts(categoryId as string);
+}, [categoryId]);
 
-  const loadCategoryProducts = async () => {
+  const loadCategoryProducts = async (categoryId: string) => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
-
-      // جلب المنتجات مع فلترة حسب الفئة
-      const categoryProducts = await getAllProducts({ 
-        category: categoryId as string,
-        isActive: true 
-      });
-
-      setProducts(categoryProducts || []);
+      const cacheKey = getCategoryCacheKey(categoryId);
+      const timestampKey = getCategoryTimestampKey(categoryId);
+      const cachedData = await AsyncStorage.getItem(cacheKey);
+      const cachedTime = await AsyncStorage.getItem(timestampKey);
+      if (cachedData && cachedTime) {
+        const age = Date.now() - parseInt(cachedTime);
+        if (age < CATEGORY_CACHE_DURATION) {
+          console.log('✅ Using cached products for category', categoryId);
+          setProducts(JSON.parse(cachedData));
+          setIsLoading(false);
+          return;
+        }
+      }
+      // جلب المنتجات من الـ API
+      const data = await getAllProducts({ category: categoryId, isActive: true });
+      setProducts(data || []);
+      await AsyncStorage.setItem(cacheKey, JSON.stringify(data));
+      await AsyncStorage.setItem(timestampKey, Date.now().toString());
     } catch (err) {
-      console.error('Error loading category products:', err);
+      console.error('خطأ في تحميل منتجات الفئة:', err);
       setError('فشل في تحميل منتجات الفئة');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // لمسح الكاش عند تعديل/إضافة/حذف منتج في الفئة
+  const clearCategoryProductsCache = async (categoryId: string) => {
+    await AsyncStorage.removeItem(getCategoryCacheKey(categoryId));
+    await AsyncStorage.removeItem(getCategoryTimestampKey(categoryId));
   };
 
   const handleAddToCart = async (product: Product) => {
@@ -218,7 +239,7 @@ export default function CategoryScreen() {
         
         <ErrorComponent 
           message={error}
-          onRetry={loadCategoryProducts}
+          onRetry={() => loadCategoryProducts(categoryId as string)}
         />
       </SafeAreaView>
     );
@@ -234,7 +255,7 @@ export default function CategoryScreen() {
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{categoryName}</Text>
-        <TouchableOpacity onPress={loadCategoryProducts} style={styles.refreshButton}>
+        <TouchableOpacity onPress={() => loadCategoryProducts(categoryId as string)} style={styles.refreshButton}>
           <Ionicons name="refresh" size={24} color="white" />
         </TouchableOpacity>
       </View>

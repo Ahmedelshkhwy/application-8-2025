@@ -32,6 +32,7 @@ export const importProductsFromArray = async (products: any[], token: string) =>
           stock: parseInt(product.stock) || 0,
           category: product.category?.trim() || 'عام',
           barcode: product.barcode?.trim() || '',
+          isFeatured: product.isFeatured || false,
           brand: product.brand?.trim() || '',
           image: product.image?.trim() || 'https://placehold.co/200x200?text=Product'
         };
