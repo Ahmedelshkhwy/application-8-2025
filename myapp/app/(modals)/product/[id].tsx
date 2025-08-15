@@ -18,7 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Product } from '../../../src/types/modules';
-import { getProductById, getCategoryById, getAllProducts } from '../../../src/api/api';
+import { getProductById, getCategoryById, getAllProducts, getFeaturedProducts } from '../../../src/api/api';
 import { useCart } from '../../../src/contexts/cartcontext';
 import { useAuth } from '../../../src/contexts/AuthContext';
 

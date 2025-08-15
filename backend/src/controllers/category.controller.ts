@@ -21,7 +21,14 @@ export const getAllCategories = async (_req: Request, res: Response) => {
  */
 export const getCategoryById = async (req: Request, res: Response) => {
   try {
-    const category = await Category.findById(req.params['id']);
+    const idOrName = req.params['id'];
+    let category;
+    // تحقق إذا كان id صالح (ObjectId)
+    if (/^[a-fA-F0-9]{24}$/.test(idOrName as string)) {
+      category = await Category.findById(idOrName);
+    } else {
+      category = await Category.findOne({ name: idOrName });
+    }
     if (!category) return res.status(404).json({ message: 'Category not found' });
     return res.status(200).json(category);
   } catch (error) {
